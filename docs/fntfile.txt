@@ -1,0 +1,17 @@
+FONTGDI 'FNT' file format:
+
+The FNT header looks like this:
+
+    'FONT'              (4 bytes)
+    character height    (1 byte)
+    display height      (1 byte)
+    # of characters     (1 word = 2 bytes)
+    [character def #0]  (# of bytes = character height)
+    [character def #1]  (# of bytes = character height)
+        ...
+
+    That's it. That's the FONTGDI FNT file format.
+    All the characters are represented as 8-pixel wide monochrome bitmaps.
+    This means one scan line = 1 byte. The number of scan lines is defined
+    by the character height.
+

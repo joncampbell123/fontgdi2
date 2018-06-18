@@ -1,0 +1,181 @@
+
+FONTGDI documentation of INT 68h API (as of version 2.0)
+
+FUNCTION AH = 0: GET VERSION a.k.a "HELLO ROUTINE"
+IN:                 OUT:
+AH = 0              AX = VERSION (AH = 1st digit, AL = 2nd digit)
+                    BX = 1234h
+                    CL = 3rd digit (1.25+)
+                    CH = 4th digit (1.961+)
+
+FUNCTION AH = 1: SET TEXT FONT
+IN:                 OUT:
+AH = 1              AL = 10h if not supported by video card
+AL = points         AL = 00h if successful
+SI = offset of buf
+DS = segment of buf
+
+DS:SI must point to a buffer holding 32-byte entries that represent character
+definitions. Each 32-byte entry is a 8x32 monochrome bitmap that represents
+the character, plus padding. The buffer must be formatted this way because
+it is copied verbatim into the character RAM of the VGA card.
+
+FUNCTION AH = 2: GET TEXT FONT (1.29+)
+IN:                 OUT:
+AH = 2              AL = 10h if not supported by video card
+SI = offset of buf
+DS = segment of buf
+
+FUNCTION AH = 3: GET REQUIRED CPU (1.45+)
+IN:                 OUT:
+AH = 3              AL = first digit of CPU number (e.g. 3 = 386, 2 = 286)
+
+FUNCTION AH = 4: GET CURRENT CPU (1.90+)
+IN:                 OUT:
+AH = 4              AL = first digit of CPU number (e.g. 3 = 386, 2 = 286)
+
+FUNCTION AH = 5, CL = 0: SET INT 10H function 14 hook (1.967+, obselete 2.0+)
+IN:                 OUT:
+AH = 5
+CL = 0
+SI = offset of hook
+     proc
+ES = segment of
+     hook proc
+
+All the registers used to call INT 10H function 0Eh are not changed when
+the hook procedure is called, and only AH is changed to 0Eh when the hook
+procedure returns. If the carry flag is set when the procedure returns control
+to FONTGDI, FONTGDI returns control directly to the program that called INT 10H.
+If the carry flag is clear, FONTGDI gives control to the INT 10H routine
+(normally BIOS) it replaced. When FONTGDI calls the hook procedure, it uses a
+FAR call, so the hook procedure must return control to FONTGDI using the RETF
+instruction.
+
+FUNCTION AH = 5, CL = 1: GET INT 10H function 14 hook (1.967+, obselete 2.0+)
+IN:                 OUT:
+AH = 5              SI = offset of hook procedure
+CL = 1              ES = segment of hook procedure
+
+FUNCTION AH = 10h: GET VIDEO FLAGS SET #1
+IN:                 OUT:
+AH = 10h            AL = flags
+                    bit 0 of AL             Can do CGA graphics with this video card
+                    bit 1 of AL             Can do EGA graphics with this video card
+                    bit 2 of AL             Can do VGA graphics with this video card
+                    bit 3 of AL             Can do SVGA graphics with this video card
+                    bit 4 of AL             CGA routines implemented
+                    bit 5 of AL             EGA routines implemented
+                    bit 6 of AL             VGA routines implemented
+                    bit 7 of AL             SVGA routines implemented
+
+FUNCTION AH = 11h: GET VIDEO FLAGS SET #2 (Video card can-do flags)
+IN:                 OUT:
+AH = 11h            AL = flags
+                    bit 0 of AL             Can use color pallete
+                    bit 1 of AL             Video card supports color pallete
+                    bit 2 of AL             Video card can change text-mode font
+                    bit 3 of AL             VGA/SVGA is capable of turning on bit planes in the 320x200 256-color mode
+
+FUNCTION AH = 12h: GET VIDEO FLAGS SET #3 (Video data/Implements)
+IN:                 OUT:
+AH = 12h            AL = flags
+                    bit 0 of AL             1=CRT is on port 3DA.   0=CRT is on port 3BA.
+                    bit 1 of AL             1=CRT is either on port 3DA or 3BA.   0=CRT is not there.
+                    bit 5 of AL             1=INT 10H AH = 0EH hooked.
+                    bit 6 of AL             1=INT 68H AH = 16H supported (Get FONTGDI flags).   0=FONTGDI flags not availible.
+                    bit 7 of AL             1=FONTGDI supports system functions and font control.  0=FONTGDI only supports font control
+
+FUNCTION AH = 13h CL = 128: SET VIDEO FLAGS SET #4
+IN:                 OUT:
+AH = 13h            AL = flags
+CL = 80h            bit 0 of Vid4Flag             Master disable switch (1=Disabled)
+                    bit 1 of Vid4Flag             Disable automatic font set when INT 10 invoked (1=Disabled)
+                    bit 2 of Vid4Flag             Disable INT 10 AH = 11H (character generator interface) functions (1.79+, obselete 2.0+)
+                    bit 4 of Vid4Flag             1=Invert underline.     0=Draw underline. (Version 1.31+, obselete 2.0+)
+                    bit 5 of Vid4Flag             1=Make font bold.       0=Display font as is.
+                    bit 6 of Vid4Flag             1=Make font italic.     0=Display font as is. (Version 1.10+, obselete 1.85+)
+                    bit 7 of Vid4Flag             1=Make font underlined. 0=Display font as is. (Version 1.20+, obselete 2.0+)
+
+FUNCTION AH = 13h CL = 128: GET VIDEO FLAGS SET #4
+IN:                 OUT:
+AH = 13h            AL = flags
+CL = 00h
+
+FUNCTION AH = 14h: GET ITALIC SHIFT (1.75+, obselete 1.85+)
+IN:                 OUT:
+AH = 14h            AL = italic shift byte
+
+FUNCTION AH = 14h: UPDATE CHARACTER RAM (2.0+)
+IN:                 OUT:
+AH = 14h
+
+FUNCTION AH = 20h, DL = 0: GET IRQ ENABLE BITS (1.962+, obselete 2.0+)
+IN:                 OUT:
+AH = 20h
+CX = bits
+DL = 00h
+
+FUNCTION AH = 20h, DL = 1: SET IRQ ENABLE BITS (1.962+, obselete 2.0+)
+IN:                 OUT:
+AH = 20h            CX = bits
+DL = 00h
+
+FUNCTION AH = 21h: SET TIMER SPEED (IRQ0 SPEED) (1.963+, obselete 2.0+)
+IN:                 OUT:
+AH = 21h
+CX = SPEED
+
+FUNCTION AH = 22h, AL = 0: REAL TIME CLOCK FUNCTIONS -- GET RTC TIME (1.972+, obselete 2.0+)
+IN:                 OUT:
+AH = 22h            AL = 00h if successful
+AL = 00h            AL = 10h if RTC battery dead
+                    AL = 20h if RTC disabled
+                    BL = seconds
+                    BH = minutes
+                    CL = hours
+                    CH = day of week (1 = sunday)
+                    DL = day of month
+                    DH = month
+                    SI = year
+
+FUNCTION AH = 22h, AL = 1: REAL TIME CLOCK FUNCTIONS -- SET RTC TIME (1.972+, obselete 1.975+)
+IN:                 OUT:
+AH = 22h            AL = 00h if successful
+AL = 01h            AL = 10h if RTC battery dead
+BL = seconds        AL = 20h if RTC disabled
+BH = minutes
+CL = hours
+CH = day of week (0 = sunday)
+DL = day of month
+DH = month
+SI = year
+
+FUNCTION AH = 22h, AL = 2: REAL TIME CLOCK FUNCTIONS -- GET RTC ALARM TIME (1.973+)
+IN:                 OUT:
+AH = 22h            AL = 00h if successful
+AL = 02h            AL = 10h if RTC battery dead
+                    AL = 20h if RTC disabled
+                    AL = F0h if function not implemented
+                    BL = alarm seconds
+                    BH = alarm minutes
+                    CL = alarm hour
+
+FUNCTION AH = 22h, AL = 3: REAL TIME CLOCK FUNCTIONS -- SET RTC ALARM TIME (1.973+, obselete 1.975+)
+IN:                 OUT:
+AH = 22h            AL = 00h if successful
+AL = 03h            AL = 10h if RTC battery dead
+BL = alarm seconds  AL = 20h if RTC disabled
+BH = alarm minutes  AL = F0h if function not implemented
+CL = alarm hour
+
+FUNCTIONS AH = 22h, AL = 4: REAL TIME CLOCK FUNCTIONS -- GET RTC FLAGS (1.974+, obselete 2.0+)
+IN:                 OUT:
+AH = 22h            AL = 00h if successful
+AL = 04h            AL = 10h if RTC battery dead
+                    AL = 20h if RTC disabled
+                    AL = F0h if function not implemented
+                    BX = flags:
+                    bit 0 of BX = Time update status
+                    bit 1 of BX = Daylights saving time in effect
+                    bit 2 of BX = Alarm enabled

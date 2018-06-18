@@ -1,0 +1,229 @@
+
+FONTGDI (C) 1996, 2001 Jonathan Campbell
+
+; dates of various version "completions"
+v1.00  - Mar 16th, 1996
+v1.10  - Mar 18th, 1996
+v1.20  - Mar 19th, 1996
+v1.25  - Mar 19th, 1996
+v1.28  - Mar 20th, 1996
+v1.29  - Mar 22th, 1996
+v1.30  - Apr 18th, 1996
+v1.31  - May 1st, 1996
+v1.40  - July 9th, 1996
+v1.45  - July 14th, 1996
+v1.70  - July 14th, 1996
+v1.75  - July 15th, 1996
+v1.79  - July 15th, 1996
+v1.85  - July 16th, 1996
+v1.86  - July 16th, 1996
+v1.90  - July 19th, 1996
+v1.95  - July 21st, 1996
+v1.96  - July 21st, 1996
+v1.961 - July 21st, 1996
+v1.962 - July 21st, 1996
+v1.963 - July 21st, 1996
+v1.967 - July 21st, 1996
+v1.97  - July 21st, 1996
+v2.00  - Mar 5th, 2001
+v2.10  - Apr 17th, 2001
+v2.20  - Aug 28th, 2001
+v2.21  - Aug 29th, 2001
+
+Version 1.00
+-------------------------------
+    Original release.
+
+Version 1.10
+----------------------------------------------
+    Allows font styles of bold and italic.
+
+Version 1.20
+-------------
+    Added font underline capability.
+
+Version 1.25
+-------------
+    Fixed bug in INT 10H interception that caused certain programs to crash.
+
+Version 1.28
+-------------
+    Program now compensates for video mode 7 (80x25 monochrome text). Earlier
+versions forced video mode 3 when INT 10H invoked to set video mode 7.
+
+Version 1.29
+-------------
+    Programs can now get the currently set font.
+
+Version 1.30
+-------------
+    Bold or italic fonts have a cleaner look.
+
+Version 1.31
+-------------
+    Inverted underline availible.
+
+Version 1.40
+-------------
+    Program no longer assumes font data is at address B000:0000. Doesn't
+force video area to be at address B800:0000 anymore. Fixed problems with
+some SVGA video adapters. Fixed some of the problems associated with
+Windows 95.
+
+Version 1.45
+-------------
+    Program now tells you what CPU it needs (Future FONTGDI programs will need
+CPU's higher than 8086/8088).
+
+Version 1.70
+-------------
+    Program now looks for ASCII character 177 (±) because unused memory always
+returns FFh and could be mistaken for ASCII character 219 (Û).
+    Fixed errors that crash the computer when the character table is not found.
+    Routine that scans for the character table rewritten so pointer does not
+go outside the range A000:0000-B800:0000 and to keep pointer aligned on half-
+segment boundaries.
+
+Version 1.75
+-------------
+    Rewrote 16-bit fixed-point italics routine to divide the calculation result
+by any power of 2 and added a function that allows the program to change that
+power of 2. The lower the power of two, the more italicized the text is.
+
+Version 1.79
+-------------
+    Added ability to block BIOS character generator interface functions.
+
+Version 1.85
+-------------
+    Took out the italicizing routine and made all italicizing routines obselete.
+    I did it because there seems to be no interest in italicizing the text
+(besides, it makes the the text itself hard to read).
+
+Version 1.86
+-------------
+    Program now notifies user if video card is not the right type.
+
+Version 1.90
+-------------
+    Added function that returns the CPU number (0 = 8086,2 = 80286,etc.)
+
+Version 1.95
+-------------
+    Started preparing FONTGDI for support of system functions.
+    Bits 6 and 7 in the 8-bit value returned by GetVideoFlagSet3 now have
+meaning:
+    BIT     6           1=INT 68H AH = 16H supported (Get FONTGDI flags).
+                        0=FONTGDI flags not availible.
+    BIT     7           1=FONTGDI supports system functions and font control.
+                        0=FONTGDI only supports font control
+    Soon FONTGDI will control more than just fonts.
+
+Version 1.96
+-------------
+    Added function 16H.
+
+Version 1.961
+--------------
+    Added code that detects Protected Mode and Virtual 8086 mode and defined
+bits 1-2 of the FONTGDI flag bits:
+
+    BIT     1           1=In protected mode (286+)
+                        0=Not in protected mode
+    BIT     2           1=In virtual 8086 mode (386+)
+                        0=Not in virtual 8086 mode
+
+Version 1.962
+--------------
+    FONTGDI now has function 20H: IRQ enable bits. Allows you to get the bits
+that are used to enable/disable IRQ 0-15. This value is returned in CX. If you
+want to set the bits, call function with DL = 1 and the new value specified in
+CX.
+
+Version 1.963
+--------------
+    Added function 21H: Set timer speed. CX = speed.
+
+Version 1.967
+--------------
+    Added ability to hook a procedure into BIOS's INT 10H AH=0Eh function.
+
+Version 1.97
+-------------
+    Routine that recalculates rows on screen when changing the font now
+rewritten so that when it does the division it uses the remainder to more
+accurately calculate.
+
+Version 1.971
+--------------
+    Programs can now hook into INT 16H and INT 15H keyboard intercept (AH = 4Fh).
+    Skipping the routine if carry flag set removed (caused problems when
+intercepting INT 16H and INT 15H). Rewrote hook code.
+
+Version 1.972
+--------------
+    Added functions to handle the RTC (Real Time Clock). Programs can call up
+to get or set the time. Rewrote INT 68H routine to greatly increase the amount
+of data that can be passed between FONTGDI and other programs.
+
+Version 1.973
+--------------
+    Improved RTC functions; now programs can access the RTC alarm time.
+
+Version 1.974
+--------------
+    More RTC functions.
+
+Version 1.975
+--------------
+    OOPS! Turns out the functions I added in V1.972 to set the time was faulty.
+I removed the functions.
+
+Version 2.0
+-----------
+    Dug out of my old archives (in the year 2001), and began improving it
+and rewriting it for distribution on the internet. Realized how stupid it
+was to try to make FONTGDI some sort of major kernel in terms of system
+functions. Cut them out. My excuse was that at the time I was not as proficient
+in assembly as I was in C/C++, would rather have external assembly do the work.
+    Took out auto-detection of character RAM addresses. Turns out that most
+SVGA cards will improperly provide access if addressed at any location other
+than A000:0000 (particularly my S3 Virge PCI), where it would allow access
+to only the even bytes of the character RAM. When FONTGDI came around to write
+the RAM, it only affected the even bytes. The result was an incomprehensible
+'hash' on the screen. Managed to fix this.
+    Reorganized code, removed EGA support (which was never fully implemented
+anyway), and removed all "special effects" other than BOLD TEXT.
+    Also, when setting attributes with LOADFNT.EXE, you no longer have to
+force a mode set for the flags to visually take effect (i.e., no need to
+type LOADFNT.EXE with what you want followed by "MODE CO80"). Loadfnt now
+invokes INT 10h SET VIDEO MODE with the 7th bit set to tell the BIOS *NOT*
+to clear the screen, just to set the video mode to what it already is.
+
+Version 2.1
+-----------
+    Reinstated blocking of INT 10h function 11h character generation functions,
+so that those who call it will not replace the currently set font. This should
+cause the FONTGDI font to display even during the Windows "blue screen of death"
+
+Version 2.2
+-----------
+    Found that previous versions of FONTGDI (including v2.1) made weird
+miscalculations where some DOS programs that use INT 10h AH=11 AL=30
+incorrectly determined the size of the console screen (these programs include
+QEdit, DOS EDIT, and the Windows 9x Blue Screen of Death). Fixed row
+recalculation routines and fixed INT 10h AH=11 hooking to correctly report
+to curious DOS apps the screen characteristics.
+    Also, previous versions were ignorant of the fact that when DOS
+applications request monochromatic 80x25 text mode (BIOS mode 7) it should
+configure the VGA card to map the adapter RAM at B000:0000. Many DOS programs
+reliant on mode 7 failed to show any output for this reason. (but it doesn't
+fix Windows 9x blue screen of death failing to show properly, hmmm..) This
+version, when configuring the map address of adapter RAM, simply saves
+whatever the BIOS set the address to and restores it after changing character
+RAM.
+
+Version 2.21
+------------
+    Made slight fixes to INT 2Fh Windows multiplex monitoring
+
